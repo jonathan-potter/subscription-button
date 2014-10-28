@@ -14,21 +14,56 @@
                 input: this.form.find("input"),
                button: this.form.find("div")
             }
+            this.events = [
+                "click",
+                "change",
+                "focusout",
+                "keydown",
+                "keyup"
+            ];
             this.states = {
                 "unsubscribed": {
-                        nextState: "subscribing",
-                    bindingTarget: this.elements.form
+                    click: {
+                        target: this.elements.form,
+                        state: "subscribing-no-text"
+                    }
                 },
-                "subscribing": {
-                        nextState: "subscribed",
-                    bindingTarget: this.elements.button
+                "subscribing-no-text": {
+                    textAdded: {
+                        target: this.elements.input,
+                        state: "subscribing-text-entered"
+                    },
+                    lossOfFocus: {
+                        target: this.elements.input,
+                        state: "unsubscribed"
+                    }
+                },
+                "subscribing-text-entered": {
+                    regexPassed: {
+                        target: this.elements.input,
+                        state: "subscribing-valid-email"
+                    },
+                    allTextRemoved: {
+                        target: this.elements.input,
+                        state: "subscribing-no-text"
+                    }
+                },
+                "subscribing-valid-email": {
+                    click: {
+                        target: this.elements.button,
+                        state: "subscription-submitted"
+                    },
+                    regexFailed: {
+                        target: this.elements.input,
+                        state: "subscribing-text-entered"
+                    }
                 }
             }
 
             this.updateUI();
         },
-        advanceState: function () {
-            this.state = this.stateInformation().nextState;
+        setState: function (state) {
+            this.state = state;
 
             this.updateUI();
         },
@@ -36,13 +71,70 @@
             var self, stateInformation;
 
             self = this;
-            stateInformation = this.stateInformation();
+            events = this.stateInformation();
 
-            if (stateInformation && stateInformation.bindingTarget) {
-                stateInformation.bindingTarget.click(function () {
-                    self.advanceState.call(self);
-                });
-            }
+           if (events) {
+               events.click && events.click.target.click(function (event) {
+                   event.stopPropagation();
+
+                   self.setState(events.click.state);
+               });
+               events.textAdded && events.textAdded.target.keyup(function (event) {
+                   event.stopPropagation();
+
+                   var text;
+
+                   text = events.textAdded.target.val();
+
+                   if (text.length > 0) {
+                       self.setState(events.textAdded.state);
+                   }
+               });
+               events.lossOfFocus && events.lossOfFocus.target.focusout(function (event) {
+                   event.stopPropagation();
+
+                   self.setState(events.lossOfFocus.state);
+               });
+               events.regexPassed && events.regexPassed.target.keyup(function (event) {
+                   event.stopPropagation();
+
+                   var emailMatch, emailRegexp, text;
+
+                   emailRegexp = /[a-z]+@[a-z]+\.[a-z]+/;
+                   text = events.regexPassed.target.val();
+
+                   emailMatch = text.match(emailRegexp);
+
+                   if (emailMatch) {
+                       self.setState(events.regexPassed.state);
+                   }
+               });
+               events.regexFailed && events.regexFailed.target.keyup(function (event) {
+                   event.stopPropagation();
+
+                   var emailMatch, emailRegexp, text;
+
+                   emailRegexp = /[a-z]+@[a-z]+\.[a-z]+/;
+                   text = events.regexFailed.target.val();
+
+                   emailMatch = text.match(emailRegexp);
+
+                   if (!emailMatch) {
+                       self.setState(events.regexFailed.state);
+                   }
+               });
+               events.allTextRemoved && events.allTextRemoved.target.keydown(function (event) {
+                   event.stopPropagation();
+
+                   var text;
+
+                   text = events.regexPassed.target.val();
+
+                   if (text.length === 0) {
+                       self.setState(events.allTextRemoved.state);
+                   }
+               });
+           }
         },
         initializeDomState: function () {
             for (state in this.states) {
@@ -50,7 +142,9 @@
             }
 
             for (element in this.elements) {
-                this.elements[element].off("click");
+                for (eventIndex in this.events) {
+                    this.elements[element].off(this.events[eventIndex]);
+                }
             }
         },
         stateInformation: function () {

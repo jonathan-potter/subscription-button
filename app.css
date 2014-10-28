@@ -27,6 +27,8 @@ body {
     display: flex;
     color: white;
     margin: 20px;
+/*    background-color: #ff8800;*/
+    border-radius: 5px;
 }
 
 .subscribe-form aside {
@@ -34,7 +36,6 @@ body {
     height: 40px;
     width: 40px;
     line-height: 40px;
-    background-color: #ff8800;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
@@ -42,8 +43,8 @@ body {
 .subscribe-form input {
     order: 2;
     height: 36px;
-    border-top: 2px solid #ff8800;
-    border-bottom: 2px solid #ff8800;
+    margin-top: 2px;
+    background-color: white;
 }
 
 .subscribe-form div {
@@ -52,7 +53,6 @@ body {
     padding-left: 10px;
     padding-right: 10px;
     line-height: 40px;
-    background-color: #ff8800;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }
@@ -63,10 +63,28 @@ body {
     padding-right: 0px;
 }
 
-.subscribe-form.subscribing input {
+.subscribe-form.subscribing-no-text input,
+.subscribe-form.subscribing-text-entered input,
+.subscribe-form.subscribing-valid-email input{
     width: 200px;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.subscribe-form.unsubscribed {
+    background-color: #ff4400;
+}
+.subscribe-form.subscribing-no-text {
+    background-color: #ff8800;
+}
+.subscribe-form.subscribing-text-entered {
+    background-color: #dddd00;
+}
+.subscribe-form.subscribing-valid-email {
+    background-color: #aaaaff;
+}
+.subscribe-form.subscription-submitted {
+    background-color: #44cc00;
 }
 
 .subscribe-form.subscribed input {
