@@ -63,7 +63,7 @@ body {
     padding-right: 0px;
 }
 
-.subscribe-form:focus input, .subscribe-form *:focus {
+.subscribe-form.subscribing input {
     width: 200px;
     padding-left: 10px;
     padding-right: 10px;
