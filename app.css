@@ -65,7 +65,8 @@ body {
 
 .subscribe-form.subscribing-no-text input,
 .subscribe-form.subscribing-text-entered input,
-.subscribe-form.subscribing-valid-email input{
+.subscribe-form.subscribing-valid-email input,
+.subscribe-form.subscribing-input-error input {
     width: 200px;
     padding-left: 10px;
     padding-right: 10px;
@@ -85,6 +86,9 @@ body {
 }
 .subscribe-form.subscription-submitted {
     background-color: #44cc00;
+}
+.subscribing-input-error {
+    background-color: red;
 }
 
 .subscribe-form.subscribed input {

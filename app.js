@@ -7,7 +7,8 @@
         initialize: function (state) {
             this.state = state || "unsubscribed";
 
-            this.form = $(".subscribe-form");
+            this.formClass = ".subscribe-form";
+            this.form = $(this.formClass);
             this.elements = {
                  form: this.form,
                 glyph: this.form.find("aside"),
@@ -36,6 +37,24 @@
                     lossOfFocus: {
                         target: this.elements.input,
                         state: "unsubscribed"
+                    },
+                    click: {
+                        target: this.elements.button,
+                        state: "subscribing-input-error"
+                    }
+                },
+                "subscribing-input-error": {
+                    textAdded: {
+                        target: this.elements.input,
+                        state: "subscribing-text-entered"
+                    },
+                    lossOfFocus: {
+                        target: this.elements.input,
+                        state: "unsubscribed"
+                    },
+                    click: {
+                        target: this.elements.button,
+                        state: "subscribing-input-error"
                     }
                 },
                 "subscribing-text-entered": {
@@ -46,6 +65,14 @@
                     allTextRemoved: {
                         target: this.elements.input,
                         state: "subscribing-no-text"
+                    },
+                    click: {
+                        target: this.elements.button,
+                        state: "subscribing-input-error"
+                    },
+                    lossOfFocus: {
+                        target: this.elements.input,
+                        state: "unsubscribed"
                     }
                 },
                 "subscribing-valid-email": {
@@ -56,6 +83,10 @@
                     regexFailed: {
                         target: this.elements.input,
                         state: "subscribing-text-entered"
+                    },
+                    lossOfFocus: {
+                        target: this.elements.input,
+                        state: "unsubscribed"
                     }
                 }
             }
@@ -78,6 +109,7 @@
                    event.stopPropagation();
 
                    self.setState(events.click.state);
+                   self.elements.input.focus();
                });
                events.textAdded && events.textAdded.target.keyup(function (event) {
                    event.stopPropagation();
@@ -93,7 +125,19 @@
                events.lossOfFocus && events.lossOfFocus.target.focusout(function (event) {
                    event.stopPropagation();
 
-                   self.setState(events.lossOfFocus.state);
+                   var element, targetInElements;
+
+                   targetInElements = false;
+                   for (elementIndex in self.elements) {
+                       element = self.elements[elementIndex];
+                       if (element[0] === event.relatedTarget) {
+                           targetInElements = true;
+                       }
+                   }
+
+                   if (!targetInElements) {
+                       self.setState(events.lossOfFocus.state);
+                   }
                });
                events.regexPassed && events.regexPassed.target.keyup(function (event) {
                    event.stopPropagation();
