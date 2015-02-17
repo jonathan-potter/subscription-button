@@ -30,6 +30,10 @@
                     }
                 },
                 "subscribing-no-text": {
+                    regexPassed: {
+                        target: this.elements.input,
+                        state: "subscribing-valid-email"
+                    },
                     textAdded: {
                         target: this.elements.input,
                         state: "subscribing-text-entered"
@@ -44,6 +48,10 @@
                     }
                 },
                 "subscribing-input-error": {
+                    regexPassed: {
+                        target: this.elements.input,
+                        state: "subscribing-valid-email"
+                    },
                     textAdded: {
                         target: this.elements.input,
                         state: "subscribing-text-entered"
@@ -111,11 +119,13 @@
             events = this.stateInformation();
 
            if (events) {
-               events.click && events.click.target.click(this.respondToClick.bind(this));
-               events.textAdded && events.textAdded.target.keyup(this.respondToKeyUp.bind(this));
-               events.lossOfFocus && events.lossOfFocus.target.focusout(this.respondToLossOfFocus.bind(this));
-               events.regexPassed && events.regexPassed.target.keyup(this.respondToRegexPassed.bind(this));
-               events.regexFailed && events.regexFailed.target.keyup(this.respondToRegexFailed.bind(this));
+               events.click          && events.click.target.click(this.respondToClick.bind(this));
+               events.textAdded      && events.textAdded.target.keyup(this.respondToKeyUp.bind(this));
+               events.lossOfFocus    && events.lossOfFocus.target.focusout(this.respondToLossOfFocus.bind(this));
+               events.regexPassed    && events.regexPassed.target.keyup(this.respondToRegexPassed.bind(this));
+               events.regexFailed    && events.regexFailed.target.keyup(this.respondToRegexFailed.bind(this));
+               events.regexPassed    && events.regexPassed.target.keydown(this.respondToRegexPassed.bind(this));
+               events.regexFailed    && events.regexFailed.target.keydown(this.respondToRegexFailed.bind(this));
                events.allTextRemoved && events.allTextRemoved.target.keydown(this.allTextRemoved.bind(this));
            }
         },
@@ -141,38 +151,38 @@
 
         /** EVENT HANDLERS **/
         respondToClick: function (event) {
-           event.stopPropagation();
+            event.stopPropagation();
 
-           this.setState(events.click.state);
-           this.elements.input.focus();
+            this.setState(events.click.state);
+            this.elements.input.focus();
         },
         respondToKeyUp: function (event) {
-           event.stopPropagation();
+            var text;
 
-           var text;
+            event.stopPropagation();
 
-           text = events.textAdded.target.val();
+            text = events.textAdded.target.val();
 
-           if (text.length > 0) {
-               this.setState(events.textAdded.state);
-           }
+            if (text.length > 0) {
+                this.setState(events.textAdded.state);
+            }
         },
         respondToLossOfFocus: function (event) {
-           event.stopPropagation();
+            event.stopPropagation();
 
-           var element, elementIndex, targetInElements;
+            var element, elementIndex, targetInElements;
 
-           targetInElements = false;
-           for (elementIndex in this.elements) {
-               element = this.elements[elementIndex];
-               if (element[0] === event.relatedTarget) {
-                   targetInElements = true;
-               }
-           }
+            targetInElements = false;
+            for (elementIndex in this.elements) {
+                element = this.elements[elementIndex];
+                if (element[0] === event.relatedTarget) {
+                    targetInElements = true;
+                }
+            }
 
-           if (!targetInElements) {
-               this.setState(events.lossOfFocus.state);
-           }
+            if (!targetInElements) {
+                this.setState(events.lossOfFocus.state);
+            }
         },
         respondToRegexPassed: function (event) {
             event.stopPropagation();
@@ -182,7 +192,7 @@
             emailRegexp = /[a-z]+@[a-z]+\.[a-z]+/;
             text = events.regexPassed.target.val();
 
-            emailMatch = text.match(emailRegexp);
+            emailMatch = text.toLowerCase().match(emailRegexp);
 
             if (emailMatch) {
                 this.setState(events.regexPassed.state);
@@ -196,7 +206,7 @@
             emailRegexp = /[a-z]+@[a-z]+\.[a-z]+/;
             text = events.regexFailed.target.val();
 
-            emailMatch = text.match(emailRegexp);
+            emailMatch = text.toLowerCase().match(emailRegexp);
 
             if (!emailMatch) {
                 this.setState(events.regexFailed.state);
